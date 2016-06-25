@@ -9,7 +9,7 @@ if platform.system() == 'Windows':
 	else:
 		c_dot_o = path.abspath('c:/kx/c.o/w32/c.o')
 		
-	libs = ['ws2_32']
+	libs = ['ws2_32', 'legacy_stdio_definitions']
 	extra_compile_args = ['/O2', '/Zi']
 	
 if platform.system() == 'Linux':
@@ -34,7 +34,7 @@ kdbmodule =  Extension('pykdb.kdb',
 			)
 
 setup (name = 'pykdb', 
-	version = '1.00',
+	version = '1.10',
 	packages = ['pykdb'],
 	description = 'Utilities for Python kdb+ interaction',
 	author = 'G O Brown',

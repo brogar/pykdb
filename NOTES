@@ -1,18 +1,10 @@
 
-Python 2.7 requires VS90COMNTOOLS
-Python 3.4 requires VS100COMNTOOLS
 
-Building with MSVC 2013 
-Set VS90COMNTOOLS to "C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\"
-Set VS100COMNTOOLS to "C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\"
+Building with MSVC 2015 toolkit from https://www.visualstudio.com/en-us/features/python-vs.aspx
+
+Set VS100COMNTOOLS=%VS140COMNTOOLS%
 
 python setup.py build  --force 
 python setup.py install --record files.txt
 python setup.py bdist --formats=wininst,msi,zip
 
-Building for 32 bit windows  with mingw32
-
-python setup.py build -cmingw32
-python setup.py install --record files.txt
-
-Building with Mingw64 requires changes to the distutils compiler setup
