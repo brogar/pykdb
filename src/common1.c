@@ -481,7 +481,6 @@ PyObject* from_table_kobject(K x){
 
 	  Py_DECREF(args);
 	  Py_DECREF(collectionsMod);
-	  Py_DECREF(collectionsName);
 	  Py_DECREF(list);
      } else {
 	  /* printf("creating unordered table\n"); */
