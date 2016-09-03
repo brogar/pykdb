@@ -444,24 +444,57 @@ PyObject* from_symbol_kobject(K x){
 
 static 
 PyObject* from_table_kobject(K x){
+     /* 
+	the strategy is to create a list of tuples these are then
+	passed to OrderedDict to retain the order of the columns for
+	example OrderedDict([('pear', 1), ('orange', 2), ('banana',
+	3), ('apple', 4)]). OrderedDict does not have a c-api so use a
+	callback constructor 
+     */
+     
      PyObject* result ;
      Py_ssize_t i, length;
      PyObject *keys ;
      PyObject *vals ;
-	
+
+     PyObject *collectionsName, *collectionsMod, *OrderedDict, *pDict,
+	  *list, *tple, *args;
      keys = from_any_kobject( kK(x->k)[0] );
      vals = from_columns_kobject( kK(x->k)[1] );
-     result = PyDict_New();
-     if( PyList_CheckExact(keys)) {
+
+     collectionsName = PyUnicode_FromString((char*)"collections");
+     collectionsMod  = PyImport_Import(collectionsName);
+     Py_DECREF(collectionsName);
+     if(collectionsMod != NULL) {
+	  /* printf("creating ordered table\n"); */
 	  length = PyList_Size(keys);
+	  list = PyList_New(length);
 	  for(i = 0; i != length; ++i) {
-	       PyDict_SetItem(result, PyList_GetItem(keys, i), PyList_GetItem(vals, i));
+	       /* tple create new ref, pylist_setitem steals it */
+	       tple = PyTuple_Pack(2, PyList_GetItem(keys, i), PyList_GetItem(vals, i));
+	       PyList_SetItem(list, i, tple);
+	  }
+	  pDict = PyModule_GetDict(collectionsMod); // borrowed ref
+	  OrderedDict = PyDict_GetItemString(pDict, (char*)"OrderedDict"); // borrowed ref
+	  args = PyTuple_Pack(1, list); // new ref
+	  result = PyObject_CallObject(OrderedDict, args); // new ref
+
+	  Py_DECREF(args);
+	  Py_DECREF(collectionsMod);
+	  Py_DECREF(collectionsName);
+	  Py_DECREF(list);
+     } else {
+	  /* printf("creating unordered table\n"); */
+	  result = PyDict_New();
+	  if( PyList_CheckExact(keys)) {
+	       length = PyList_Size(keys);
+	       for(i = 0; i != length; ++i) {
+		    PyDict_SetItem(result, PyList_GetItem(keys, i), PyList_GetItem(vals, i));
+	       }
 	  }
      }
-	
      Py_DECREF(keys);
      Py_DECREF(vals);
-	
      return result;
 }
 
